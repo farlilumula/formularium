@@ -4,7 +4,7 @@ const router = express.Router();
 
 
 const openai = new openAI({
-    apiKey: process.env.OPENAI_API_KEY
+    apiKey: process.env.apiKey
 });
 
 router.post('/tanya obat', async (req, res) => {
