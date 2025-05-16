@@ -6,6 +6,7 @@ const buyRouter = require("./router/buys");
 const chatgptRouter = require('./router/chatgpt');
 const keywordRouter = require("./router/keywords");
 const mongoose = require("mongoose");
+const suggestionRoutes = require("./router/api");
 
 
 // const { Telegraf } = require('telegraf');
@@ -68,15 +69,10 @@ app.get("/keyword", function (req, res) {
 
 app.use('/api', chatgptRouter);
 
-// bot.start((ctx) => ctx.reply('Welcome'));
-// bot.help((ctx) => ctx.reply('Send me a sticker'));
-// bot.on('sticker', (ctx) => ctx.reply('👍'));
-// bot.hears('hi', (ctx) => ctx.reply('Hey there'));
-// bot.launch();
-
 app.use(userRouter);
 app.use(buyRouter);
 app.use(keywordRouter);
+app.use("/api", suggestionRoutes);
 
 // app.listen(3000, function () {
 //   console.log("server is ok");

@@ -8,15 +8,36 @@ const Item = require("../models/item");
 module.exports = {
   index: function (req, res) {
     let keyword = {};
+
+    // if (req.query.keyword) {
+    //   const words = req.query.keyword.split(" ").join("|"); // ubah jadi regex OR
+    //   const regex = new RegExp(words, "i"); // case-insensitive
+
+    //   keyword = {
+    //     $or: [
+    //       { kata_kunci: { $regex: regex } },
+    //       { nama_obat: { $regex: regex } },
+    //       { zat_aktif: { $regex: regex } },
+    //     ],
+    //   };
+    // }
+
     if (req.query.keyword) {
-      keyword = {
+      const rawKeywords = req.query.keyword.split("%%").map(k => k.trim()); // pisahkan berdasarkan '%%'
+      const regexes = rawKeywords.map(k => new RegExp(k, "i")); // buat regex untuk tiap keyword
+    
+      // Buat kondisi $or untuk setiap field, dan $and untuk menggabungkan semua keyword
+      const andConditions = regexes.map(regex => ({
         $or: [
-          { kata_kunci: { $regex: req.query.keyword, $options: "i" } },
-          { nama_obat: { $regex: req.query.keyword, $options: "i" } },
-          { zat_aktif: { $regex: req.query.keyword, $options: "i" } },
-        ],
-      };
+          { kata_kunci: { $regex: regex } },
+          { nama_obat: { $regex: regex } },
+          { zat_aktif: { $regex: regex } },
+        ]
+      }));
+    
+      keyword = { $and: andConditions };
     }
+    
 
     // cara pencarian ke satu
     const query = Item.find(keyword)
@@ -25,23 +46,35 @@ module.exports = {
       .collation({ locale: "en_US", numericOrdering: true })
       .limit(15);
 
-
     query.exec(function (error, items) {
-      if (error) console.log(error);
-
-      console.log(items);
-
+      if (error) {
+        console.error(error);
+        return res.render("user/index", {
+          items: [],
+          errorMessage: "Terjadi kesalahan saat mengambil data.",
+        });
+      }
+    
+      if (!items || items.length === 0) {
+        return res.render("user/index", {
+          items: [],
+          errorMessage: "Data tidak ditemukan.",
+        });
+      }
+    
       const formattedItems = items.map((item) => ({
         ...item._doc,
-        hnappnFormatted: new Intl.NumberFormat('id-ID', {
-          style: 'currency',
-          currency: 'IDR',
+        hnapnFormatted: new Intl.NumberFormat("id-ID", {
+          style: "currency",
+          currency: "IDR",
           maximumFractionDigits: 0,
         }).format(item.hnappn),
       }));
-
-      res.render("user/index", { items : formattedItems });
+    
+      res.render("user/index", { items: formattedItems });
     });
+    
+    
   },
 
   show: function (req, res) {
