@@ -3,10 +3,8 @@ require('dotenv').config();
 var moment = require("moment");
 const userRouter = require("./router/items");
 const buyRouter = require("./router/buys");
-const chatgptRouter = require('./router/chatgpt');
 const keywordRouter = require("./router/keywords");
 const mongoose = require("mongoose");
-const suggestionRoutes = require("./router/api");
 
 
 // const { Telegraf } = require('telegraf');
@@ -67,12 +65,12 @@ app.get("/keyword", function (req, res) {
   res.render("pages/keyword");
 });
 
-app.use('/api', chatgptRouter);
+// app.use('/api', chatgptRouter);
 
 app.use(userRouter);
 app.use(buyRouter);
 app.use(keywordRouter);
-app.use("/api", suggestionRoutes);
+// app.use("/api", suggestionRoutes);
 
 // app.listen(3000, function () {
 //   console.log("server is ok");
