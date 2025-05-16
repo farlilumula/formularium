@@ -5,6 +5,7 @@ const userRouter = require("./router/items");
 const buyRouter = require("./router/buys");
 const keywordRouter = require("./router/keywords");
 const mongoose = require("mongoose");
+const suggestionRoutes = require("./router/api");
 
 
 // const { Telegraf } = require('telegraf');
@@ -70,7 +71,7 @@ app.get("/keyword", function (req, res) {
 app.use(userRouter);
 app.use(buyRouter);
 app.use(keywordRouter);
-// app.use("/api", suggestionRoutes);
+app.use("/api", suggestionRoutes);
 
 // app.listen(3000, function () {
 //   console.log("server is ok");
