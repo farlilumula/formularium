@@ -23,16 +23,18 @@
 }
 
 .container-card .card {
-  width: 200px;
-  height: 200px;
+  position: relative;
+  width: 250px;
+  height: 250px;
   box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.9);
-  transition: 0.5s ease;
+  transition: all 0.5s ease;
   cursor: pointer;
   margin: 20px;
-  margin-bottom: 20px;
+  margin-bottom: 50px;
   justify-content: center;
   align-items: center;
   border-radius: 15px;
+  z-index: 1;
 }
 
 .card .card-image img {
@@ -83,6 +85,7 @@
 .card:hover {
   transform: scale(1.2);
   box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.6);
+  z-index: 10;
 }
 
 .card-footer {
@@ -90,6 +93,16 @@
   justify-content: space-between;
   align-items: center;
   padding: 20px;
+  flex-direction: column;
+  min-height: 140px;
+}
+
+.card-footer .stok-info ul {
+  padding-left: 18px;
+  margin-bottom: 0;
+}
+.card-footer .stok-info li {
+  margin-bottom: 4px;
 }
 
 .card-footer a {
@@ -106,7 +119,7 @@
   transition: 0.2s;
 }
 .price {
-  font-size: 0.7em;
+  font-size: 0.9em;
   font-weight: bold;
   color: black;
 }
@@ -175,3 +188,35 @@ ul li {
   background-color: #007bff;
   color: #fff;
 }
+
+.stok-badge-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.badge-outlet {
+  background-color: #2196f3; /* biru */
+  color: white;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 10px;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.card-footer .stok-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2 kolom */
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.card-footer .stok-item {
+  font-size: 13px;
+  color: #444;
+  background-color: #f1f1f1;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+

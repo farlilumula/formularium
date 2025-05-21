@@ -4,24 +4,11 @@ const { response, request } = require("express");
 const { v4: uuidv4 } = require("uuid");
 // import modul item dari models
 const Item = require("../models/item");
+const Stok = require('../models/stock');
 
 module.exports = {
   index: function (req, res) {
     let keyword = {};
-
-    // if (req.query.keyword) {
-    //   const words = req.query.keyword.split(" ").join("|"); // ubah jadi regex OR
-    //   const regex = new RegExp(words, "i"); // case-insensitive
-
-    //   keyword = {
-    //     $or: [
-    //       { kata_kunci: { $regex: regex } },
-    //       { nama_obat: { $regex: regex } },
-    //       { zat_aktif: { $regex: regex } },
-    //     ],
-    //   };
-    // }
-
     if (req.query.keyword) {
       const rawKeywords = req.query.keyword.split("%%").map(k => k.trim()); // pisahkan berdasarkan '%%'
       const regexes = rawKeywords.map(k => new RegExp(k, "i")); // buat regex untuk tiap keyword
@@ -37,44 +24,42 @@ module.exports = {
     
       keyword = { $and: andConditions };
     }
-    
 
-    // cara pencarian ke satu
-    const query = Item.find(keyword)
-      .populate("stok")
-      .sort({ hnappn: -1 })
-      .collation({ locale: "en_US", numericOrdering: true })
-      .limit(15);
+
+
+
+    const query = Item.aggregate([
+      { $match: keyword }, // Pencarian berdasarkan input keyword
+      {
+        $lookup: {
+          from: "stoks",           // Nama koleksi (bukan nama model!)
+          localField: "kode_obat", // Field di koleksi Item
+          foreignField: "kode_obat", // Field yang cocok di koleksi Stok
+          as: "stok_data"
+        }
+      },
+      {
+        $limit: 15
+      }
+    ])
+
 
     query.exec(function (error, items) {
-      if (error) {
-        console.error(error);
-        return res.render("user/index", {
-          items: [],
-          errorMessage: "Terjadi kesalahan saat mengambil data.",
-        });
-      }
-    
-      if (!items || items.length === 0) {
-        return res.render("user/index", {
-          items: [],
-          errorMessage: "Data tidak ditemukan.",
-        });
-      }
-    
+      if (error) console.log(error);
+
+      console.log(items);
+
       const formattedItems = items.map((item) => ({
-        ...item._doc,
-        hnapnFormatted: new Intl.NumberFormat("id-ID", {
-          style: "currency",
-          currency: "IDR",
+        ...item,
+        hnappnFormatted: new Intl.NumberFormat('id-ID', {
+          style: 'currency',
+          currency: 'IDR',
           maximumFractionDigits: 0,
-        }).format(item.hnappn),
+        }).format(item.hnappn || 0),
       }));
-    
-      res.render("user/index", { items: formattedItems });
+
+      res.render("user/index", { items : formattedItems });
     });
-    
-    
   },
 
   show: function (req, res) {
@@ -90,21 +75,6 @@ module.exports = {
     res.render("pages/about");
   },
   store: function (req, res) {
-    // cara tambah item pertama
-    // const item = new Item({
-    //   name: req.body.name,
-    //   email: req.body.email,
-    //   password: req.body.password,
-    // });
-
-    // item.save(function (error, result) {
-    //   if (error) console.log(error);
-
-    //   console.log(result);
-    //   res.redirect("/users");
-    // });
-
-    // cara tambah item ke dua
     Item.create(
       {
         kode_obat: req.body.kode_obat,
@@ -136,20 +106,6 @@ module.exports = {
         hargacrosseling_2: req.body.hargacrosseling_2,
         crosseling_3: req.body.crosseling_3,
         hargacrosseling_3: req.body.hargacrosseling_3,
-        // kode_obat: req.body.kode_obat,
-        // nama_obat: req.body.nama_obat,
-        // zat_aktif: req.body.zat_aktif,
-        // kode_complement: req.body.kode_complement,
-        // kode_indikasi: req.body.kode_indikasi,
-        // indikasi: req.body.indikasi,
-        // hnappn: req.body.hnappn,
-        // link_gambar: req.body.link_gambar,
-        // kode_pasien: req.body.kode_pasien,
-        // pasien: req.body.pasien,
-        // kontra_indikasi: req.body.kontra_indikasi,
-        // dosis: req.body.dosis,
-        // pemberian_obat: req.body.pemberian_obat,
-        // efek_samping: req.body.efek_samping,
       },
       function (error, result) {
         if (error) console.log(error);

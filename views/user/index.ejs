@@ -36,21 +36,41 @@
   <div class="container-card">
     <!-- awal Looping card -->
     <% items.forEach(function(item) { %>
-    <div class="card">
-      <div class="card-image waves-effect waves-block waves-light">
-        <h2 class="pareto">Pareto A</h2>
-        <!-- <img class="activator" src="<%= item.link_gambar%>" /> -->
+      <div class="card">
+        <div class="card-image waves-effect waves-block waves-light">
+          <h2 class="pareto">Pareto A</h2>
+          <!-- <img class="activator" src="<%= item.link_gambar%>" /> -->
+        </div>
+        <div class="card-content">
+          <h1><%= item.nama_obat %></h1>
+          <p>zat_aktif: <span><%= item.zat_aktif %></span></p>
+        </div>
+
+        <div class="card-footer">
+          <div class="price"><%= item.hnappnFormatted %></div>
+          <a href="/items/<%= item._id %>">Read More</a>
+
+          <!-- Tampilkan total qty dan detail stok -->
+          <div class="stok-info" style="margin-top: 10px;">
+            <strong>Stok Tersedia:</strong>
+            <% if (item.stok_data && item.stok_data.length > 0) { %>
+              <div class="stok-badge-container" style="margin-top: 6px;">
+                <% item.stok_data.forEach(function(stok) {
+                if (stok.qty > 0) { %>
+                  <span class="badge-outlet">
+          <%= stok.nama_outlet %> - <%= stok.qty %> <%= stok.satuan %>
+        </span>
+                <% } }) %>
+              </div>
+            <% } else { %>
+              <p style="font-size: 13px; color: gray;">Stok tidak tersedia</p>
+            <% } %>
+          </div>
+        </div>
       </div>
-      <div class="card-content">
-        <h1><%= item.nama_obat%></h1>
-        <p>zat_aktif: <span><%= item.zat_aktif%></span></p>
-      </div>
-      <div class="card-footer">
-        <div class="price"><%= item.hnapnFormatted%></div>
-        <a href="/items/<%= item._id%>">Read More</a>
-      </div>
-    </div>
     <% }) %>
+    <!-- akhir looping card -->
+  </div>
     <!-- akhir lopping card -->
 
     <% if (typeof errorMessage !== 'undefined') { %>
