@@ -49,6 +49,21 @@ module.exports = {
 
       console.log(items);
 
+      if (error) {
+        console.error(error);
+        return res.render("user/index", {
+          items: [],
+          errorMessage: "Terjadi kesalahan saat mengambil data.",
+        });
+      }
+
+      if (!items || items.length === 0) {
+        return res.render("user/index", {
+          items: [],
+          errorMessage: "Data tidak ditemukan.",
+        });
+      }
+
       const formattedItems = items.map((item) => ({
         ...item,
         hnappnFormatted: new Intl.NumberFormat('id-ID', {
