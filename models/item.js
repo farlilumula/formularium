@@ -9,7 +9,6 @@ const { Schema } = mongoose;
 const itemSchema = new Schema(
     {
         kode_obat: String,
-        kode_obat: Number,
         nama_obat: String,
         zat_aktif: String,
         kata_kunci: String,

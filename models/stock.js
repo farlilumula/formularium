@@ -11,7 +11,6 @@ const { Int32 } = require('mongodb');
 const stokSchema = new mongoose.Schema({
     nama_outlet: String,
     kode_obat: String,
-    kode_obat: Number,
     nama_obat: String,
     isi_obat: Number,
     satuan: String,
