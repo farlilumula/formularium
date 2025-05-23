@@ -49,6 +49,7 @@ module.exports = {
 
       console.log(items);
 
+<<<<<<< HEAD
         if (error) {
             console.error(error);
             return res.render("user/index", {
@@ -63,6 +64,22 @@ module.exports = {
                 errorMessage: "Data tidak ditemukan.",
             });
         }
+=======
+      if (error) {
+        console.error(error);
+        return res.render("user/index", {
+          items: [],
+          errorMessage: "Terjadi kesalahan saat mengambil data.",
+        });
+      }
+
+      if (!items || items.length === 0) {
+        return res.render("user/index", {
+          items: [],
+          errorMessage: "Data tidak ditemukan.",
+        });
+      }
+>>>>>>> 8f32eec380c0b4462dcdc67c37a117fc87d026d7
 
       const formattedItems = items.map((item) => ({
         ...item,

@@ -6,7 +6,10 @@ const buyRouter = require("./router/buys");
 const keywordRouter = require("./router/keywords");
 const mongoose = require("mongoose");
 const suggestionRoutes = require("./router/api");
+<<<<<<< HEAD
 const flash = require("connect-flash");
+=======
+>>>>>>> 8f32eec380c0b4462dcdc67c37a117fc87d026d7
 
 
 // const { Telegraf } = require('telegraf');
@@ -67,6 +70,7 @@ app.get("/keyword", function (req, res) {
   res.render("pages/keyword");
 });
 
+<<<<<<< HEAD
 // app.use(flash());
 //
 // // Buat pesan flash tersedia di semua view
@@ -78,6 +82,9 @@ app.get("/keyword", function (req, res) {
 
 // app.use('/api', chatgptRouter);
 
+=======
+// app.use('/api', chatgptRouter);
+>>>>>>> 8f32eec380c0b4462dcdc67c37a117fc87d026d7
 
 app.use(userRouter);
 app.use(buyRouter);
