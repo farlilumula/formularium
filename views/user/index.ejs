@@ -21,8 +21,9 @@
           <div class="row">
             <div class="input-field col s12">
               <i class="material-icons prefix">search</i>
-              <input type="text" name="keyword" id="autocomplete-input" class="autocomplete" />
-              <label for="autocomplete-input">Masukkan Kata Kunci</label>
+              <input type="text" name="keyword" id="searchInput" placeholder="Masukkan Kata Kunci" autocomplete="off"
+                class="autocomplete" />
+              <ul id="suggestionList" for="searchInput"></ul>
             </div>
           </div>
         </div>
@@ -35,22 +36,47 @@
   <div class="container-card">
     <!-- awal Looping card -->
     <% items.forEach(function(item) { %>
-    <div class="card">
-      <div class="card-image waves-effect waves-block waves-light">
-        <h2 class="pareto">Pareto A</h2>
-        <!-- <img class="activator" src="<%= item.link_gambar%>" /> -->
+      <div class="card">
+        <div class="card-image waves-effect waves-block waves-light">
+          <h2 class="pareto">Pareto A</h2>
+          <!-- <img class="activator" src="<%= item.link_gambar%>" /> -->
+        </div>
+        <div class="card-content">
+          <h1><%= item.nama_obat %></h1>
+          <p>zat_aktif: <span><%= item.zat_aktif %></span></p>
+        </div>
+
+        <div class="card-footer">
+          <div class="price"><%= item.hnappnFormatted %></div>
+          <a href="/items/<%= item._id %>">Read More</a>
+
+          <!-- Tampilkan total qty dan detail stok -->
+          <div class="stok-info" style="margin-top: 10px;">
+            <strong>Stok Tersedia:</strong>
+            <% if (item.stok_data && item.stok_data.length > 0) { %>
+              <div class="stok-badge-container" style="margin-top: 6px;">
+                <% item.stok_data.forEach(function(stok) {
+                if (stok.qty > 0) { %>
+                  <span class="badge-outlet">
+          <%= stok.nama_outlet %> - <%= stok.qty %> <%= stok.satuan %>
+        </span>
+                <% } }) %>
+              </div>
+            <% } else { %>
+              <p style="font-size: 13px; color: gray;">Stok tidak tersedia</p>
+            <% } %>
+          </div>
+        </div>
       </div>
-      <div class="card-content">
-        <h1><%= item.nama_obat%></h1>
-        <p>zat_aktif: <span><%= item.zat_aktif%></span></p>
-      </div>
-      <div class="card-footer">
-        <div class="price"><%= item.hnappnFormatted%></div>
-        <a href="/items/<%= item._id%>">Read More</a>
-      </div>
-    </div>
     <% }) %>
-    <!-- akhir lopping card -->
+    <!-- akhir looping card -->
+
+    <% if (typeof errorMessage !== 'undefined') { %>
+    <div class="alert alert-danger">
+      <%= errorMessage %>
+    </div>
+    <% } %>
+
   </div>
 
   <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="
@@ -62,6 +88,38 @@
     });
   </script>
   <!-- <%- include('../components/footer')%> -->
+
+
+  <script>
+    const input = document.getElementById("searchInput");
+    const suggestionBox = document.getElementById("suggestionList");
+
+    input.addEventListener("input", async () => {
+      const query = input.value;
+      if (!query === 0) {
+        suggestionBox.innerHTML = "";
+        suggestionBox.style.display = "none";
+        return;
+      }
+
+      const res = await fetch(`/api/suggestions?q=${query}`);
+      const suggestions = await res.json();
+
+      suggestionBox.innerHTML = suggestions
+        .map((s) => `<li style="padding: 5px; cursor: pointer;">${s}</li>`)
+        .join("");
+
+      document.querySelectorAll("#suggestionList li").forEach((item) => {
+        item.addEventListener("click", () => {
+          input.value = item.textContent;
+          suggestionBox.innerHTML = "";
+          // Optional: auto-submit form
+          document.querySelector("form").submit();
+        });
+      });
+    });
+  </script>
+
 </body>
 
 </html>

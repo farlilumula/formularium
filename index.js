@@ -3,9 +3,10 @@ require('dotenv').config();
 var moment = require("moment");
 const userRouter = require("./router/items");
 const buyRouter = require("./router/buys");
-const chatgptRouter = require('./router/chatgpt');
 const keywordRouter = require("./router/keywords");
 const mongoose = require("mongoose");
+const suggestionRoutes = require("./router/api");
+const flash = require("connect-flash");
 
 
 // const { Telegraf } = require('telegraf');
@@ -66,17 +67,22 @@ app.get("/keyword", function (req, res) {
   res.render("pages/keyword");
 });
 
-app.use('/api', chatgptRouter);
+// app.use(flash());
+//
+// // Buat pesan flash tersedia di semua view
+// app.use((req, res, next) => {
+//   res.locals.successMessage = req.flash('success');
+//   res.locals.errorMessage = req.flash('error');
+//   next();
+// });
 
-// bot.start((ctx) => ctx.reply('Welcome'));
-// bot.help((ctx) => ctx.reply('Send me a sticker'));
-// bot.on('sticker', (ctx) => ctx.reply('👍'));
-// bot.hears('hi', (ctx) => ctx.reply('Hey there'));
-// bot.launch();
+// app.use('/api', chatgptRouter);
+
 
 app.use(userRouter);
 app.use(buyRouter);
 app.use(keywordRouter);
+app.use("/api", suggestionRoutes);
 
 // app.listen(3000, function () {
 //   console.log("server is ok");
