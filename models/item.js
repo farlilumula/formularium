@@ -8,11 +8,8 @@ const { Schema } = mongoose;
 // buat tabel dgn nama tabel adalah item
 const itemSchema = new Schema(
     {
-<<<<<<< HEAD
         kode_obat: String,
-=======
         kode_obat: Number,
->>>>>>> 8f32eec380c0b4462dcdc67c37a117fc87d026d7
         nama_obat: String,
         zat_aktif: String,
         kata_kunci: String,
