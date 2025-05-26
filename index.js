@@ -25,9 +25,8 @@ var myLogger = function (req, res, next) {
   next();
 };
 
-// const mongoose = require("mongoose");
-const dbURI =
-  "mongodb+srv://dbadmin:Db2ibmrd7@farmokologi.xel5x.mongodb.net/farmokologi?retryWrites=true&w=majority";
+// Connect to MongoDB
+const dbURI = process.env.MONGODB_URI;
 mongoose
   .connect(dbURI, {
     useNewUrlParser: true,

@@ -10,7 +10,7 @@ module.exports = {
   index: function (req, res) {
     let keyword = {};
     if (req.query.keyword) {
-      const rawKeywords = req.query.keyword.split("%%").map(k => k.trim()); // pisahkan berdasarkan '%%'
+      const rawKeywords = req.query.keyword.split(/%%|\s+/).map(k => k.trim()).filter(k => k.length > 0);
       const regexes = rawKeywords.map(k => new RegExp(k, "i")); // buat regex untuk tiap keyword
     
       // Buat kondisi $or untuk setiap field, dan $and untuk menggabungkan semua keyword
@@ -28,23 +28,32 @@ module.exports = {
 
 
 
-    const query = Item.aggregate([
-      { $match: keyword }, // Pencarian berdasarkan input keyword
-      {
-        $lookup: {
-          from: "stoks",           // Nama koleksi (bukan nama model!)
-          localField: "kode_obat", // Field di koleksi Item
-          foreignField: "kode_obat", // Field yang cocok di koleksi Stok
-          as: "stok_data"
-        }
-      },
-      {
-        $limit: 15
-      }
-    ])
+      const query = Item.aggregate([
+          { $match: keyword }, // filter berdasarkan pencarian
+          {
+              $lookup: {
+                  from: "stoks",
+                  localField: "kode_obat",
+                  foreignField: "kode_obat",
+                  as: "stok_data"
+              }
+          },
+          {
+              $match: {
+                  "stok_data.0": { $exists: true }  // hanya item yang punya stok
+              }
+          },
+          {
+              $sort: { hnappn: -1 }  // urutkan harga tertinggi ke bawah
+          },
+          {
+              $limit: 20  // ambil hanya 1 data teratas
+          }
+      ]);
 
 
-    query.exec(function (error, items) {
+
+      query.exec(function (error, items) {
       if (error) console.log(error);
 
       console.log(items);
@@ -64,20 +73,6 @@ module.exports = {
             });
         }
 
-      if (error) {
-        console.error(error);
-        return res.render("user/index", {
-          items: [],
-          errorMessage: "Terjadi kesalahan saat mengambil data.",
-        });
-      }
-
-      if (!items || items.length === 0) {
-        return res.render("user/index", {
-          items: [],
-          errorMessage: "Data tidak ditemukan.",
-        });
-      }
 
       const formattedItems = items.map((item) => ({
         ...item,
@@ -104,49 +99,63 @@ module.exports = {
   create: function (req, res) {
     res.render("pages/about");
   },
-  store: function (req, res) {
-    Item.create(
-      {
-        kode_obat: req.body.kode_obat,
-        nama_obat: req.body.nama_obat,
-        zat_aktif: req.body.zat_aktif,
-        kode_complement: req.body.kode_complement,
-        kode_indikasi: req.body.kode_indikasi,
-        indikasi: req.body.indikasi,
-        hnappn: req.body.hnappn,
-        link_gambar: req.body.link_gambar,
-        kode_pasien: req.body.kode_pasien,
-        pasien: req.body.pasien,
-        kontra_indikasi: req.body.kontra_indikasi,
-        indication: req.body.indication,
-        dosis: req.body.dosis,
-        description: req.body.description,
-        aturan_pakai: req.body.aturan_pakai,
-        efek_samping: req.body.efek_samping,
-        golongan: req.body.golongan,
-        upselling_1: req.body.upselling_1,
-        hargaupselling_1: req.body.hargaupselling_1,
-        upselling_2: req.body.upselling_2,
-        hargaupselling_2: req.body.hargaupselling_2,
-        upselling_3: req.body.upselling_3,
-        hargaupselling_3: req.body.hargaupselling_3,
-        crosseling_1: req.body.crosseling_1,
-        hargacrosseling_1: req.body.hargacrosseling_1,
-        crosseling_2: req.body.crosseling_2,
-        hargacrosseling_2: req.body.hargacrosseling_2,
-        crosseling_3: req.body.crosseling_3,
-        hargacrosseling_3: req.body.hargacrosseling_3,
-      },
-      function (error, result) {
-        if (error) console.log(error);
+    store: function (req, res) {
+        Item.findOne({ kode_obat: req.body.kode_obat }, function (err, existingItem) {
+            if (err) {
+                console.log(err);
+                return res.status(500).send("Terjadi kesalahan server");
+            }
 
-        console.log(result);
-        res.redirect("/items");
-      }
-    );
-  },
+            if (existingItem) {
+                // Item sudah ada, tidak disimpan ulang
+                return res.send("Item dengan kode ini sudah ada.");
+            }
 
-  edit: function (req, res) {
+            // Jika belum ada, simpan data baru
+            Item.create({
+                kode_obat: req.body.kode_obat,
+                nama_obat: req.body.nama_obat,
+                zat_aktif: req.body.zat_aktif,
+                kode_complement: req.body.kode_complement,
+                kode_indikasi: req.body.kode_indikasi,
+                indikasi: req.body.indikasi,
+                hnappn: req.body.hnappn,
+                link_gambar: req.body.link_gambar,
+                kode_pasien: req.body.kode_pasien,
+                pasien: req.body.pasien,
+                kontra_indikasi: req.body.kontra_indikasi,
+                indication: req.body.indication,
+                dosis: req.body.dosis,
+                description: req.body.description,
+                aturan_pakai: req.body.aturan_pakai,
+                efek_samping: req.body.efek_samping,
+                golongan: req.body.golongan,
+                upselling_1: req.body.upselling_1,
+                hargaupselling_1: req.body.hargaupselling_1,
+                upselling_2: req.body.upselling_2,
+                hargaupselling_2: req.body.hargaupselling_2,
+                upselling_3: req.body.upselling_3,
+                hargaupselling_3: req.body.hargaupselling_3,
+                crosseling_1: req.body.crosseling_1,
+                hargacrosseling_1: req.body.hargacrosseling_1,
+                crosseling_2: req.body.crosseling_2,
+                hargacrosseling_2: req.body.hargacrosseling_2,
+                crosseling_3: req.body.crosseling_3,
+                hargacrosseling_3: req.body.hargacrosseling_3,
+            }, function (error, result) {
+                if (error) {
+                    console.log(error);
+                    return res.status(500).send("Gagal menyimpan data");
+                }
+
+                console.log(result);
+                res.redirect("/items");
+            });
+        });
+    },
+
+
+    edit: function (req, res) {
     const id = req.params.id;
     Item.findById(id, function (error, items) {
       if (error) console.log(error);
